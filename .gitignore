@@ -38,3 +38,10 @@ plans/
 .pi/hf-sessions/
 .pi/hf-sessions-backup/
 collect.sh
+
+# kit local dev
+/profiles-local/
+.kit/
+.claude/
+*.local.yaml
+*.local.md
