@@ -44,7 +44,13 @@ import { InteractiveMode, runPrintMode, runRpcMode } from "./modes/index.js";
 import { ExtensionSelectorComponent } from "./modes/interactive/components/extension-selector.js";
 import { initTheme, stopThemeWatcher } from "./modes/interactive/theme/theme.js";
 import { handleConfigCommand, handlePackageCommand } from "./package-manager-cli.js";
-import { loadProfile, ProfileLoadError } from "./profile/index.js";
+import {
+	type ConnectedMcpServer,
+	connectAllMcpServers,
+	installMcpCleanupHandlers,
+	loadProfile,
+	ProfileLoadError,
+} from "./profile/index.js";
 import { isLocalPath } from "./utils/paths.js";
 
 /**
@@ -447,11 +453,25 @@ export async function main(args: string[], options?: MainOptions) {
 	}
 	time("parseArgs");
 
+	const mcpServers: ConnectedMcpServer[] = [];
 	if (parsed.profile) {
 		try {
 			const profile = loadProfile(parsed.profile);
 			parsed.appendSystemPrompt = parsed.appendSystemPrompt ?? [];
 			parsed.appendSystemPrompt.push(profile.systemPrompt);
+
+			if (profile.mcpServers?.servers?.length) {
+				const connected = await connectAllMcpServers(profile.mcpServers.servers, (decl, err) => {
+					const detail = err instanceof Error ? err.message : String(err);
+					console.error(chalk.yellow(`[kit] MCP server "${decl.name}" failed to connect: ${detail}`));
+				});
+				mcpServers.push(...connected);
+				if (connected.length > 0) {
+					const summary = connected.map((s) => `${s.name} (${s.tools.length} tools)`).join(", ");
+					console.error(chalk.dim(`[kit] Connected MCP servers: ${summary}`));
+				}
+				installMcpCleanupHandlers(mcpServers);
+			}
 		} catch (err) {
 			if (err instanceof ProfileLoadError) {
 				console.error(chalk.red(`Error loading profile: ${err.message}`));
