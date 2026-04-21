@@ -44,6 +44,7 @@ import { InteractiveMode, runPrintMode, runRpcMode } from "./modes/index.js";
 import { ExtensionSelectorComponent } from "./modes/interactive/components/extension-selector.js";
 import { initTheme, stopThemeWatcher } from "./modes/interactive/theme/theme.js";
 import { handleConfigCommand, handlePackageCommand } from "./package-manager-cli.js";
+import { loadProfile, ProfileLoadError } from "./profile/index.js";
 import { isLocalPath } from "./utils/paths.js";
 
 /**
@@ -445,6 +446,21 @@ export async function main(args: string[], options?: MainOptions) {
 		}
 	}
 	time("parseArgs");
+
+	if (parsed.profile) {
+		try {
+			const profile = loadProfile(parsed.profile);
+			parsed.appendSystemPrompt = parsed.appendSystemPrompt ?? [];
+			parsed.appendSystemPrompt.push(profile.systemPrompt);
+		} catch (err) {
+			if (err instanceof ProfileLoadError) {
+				console.error(chalk.red(`Error loading profile: ${err.message}`));
+				process.exit(1);
+			}
+			throw err;
+		}
+	}
+
 	let appMode = resolveAppMode(parsed, process.stdin.isTTY);
 	const shouldTakeOverStdout = appMode !== "interactive";
 	if (shouldTakeOverStdout) {

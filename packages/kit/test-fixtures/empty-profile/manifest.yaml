@@ -1,0 +1,4 @@
+name: example-empty
+description: Minimal test-fixture profile with no domain behavior
+version: 1
+profileVersion: 0.0.1

@@ -42,6 +42,7 @@ export interface Args {
 	listModels?: string | true;
 	offline?: boolean;
 	verbose?: boolean;
+	profile?: string;
 	messages: string[];
 	fileArgs: string[];
 	/** Unknown flags (potentially extension flags) - map of flag name to value */
@@ -90,6 +91,8 @@ export function parseArgs(args: string[]): Args {
 		} else if (arg === "--append-system-prompt" && i + 1 < args.length) {
 			result.appendSystemPrompt = result.appendSystemPrompt ?? [];
 			result.appendSystemPrompt.push(args[++i]);
+		} else if (arg === "--profile" && i + 1 < args.length) {
+			result.profile = args[++i];
 		} else if (arg === "--no-session") {
 			result.noSession = true;
 		} else if (arg === "--session" && i + 1 < args.length) {
@@ -211,6 +214,7 @@ ${chalk.bold("Options:")}
   --api-key <key>                API key (defaults to env vars)
   --system-prompt <text>         System prompt (default: coding assistant prompt)
   --append-system-prompt <text>  Append text or file contents to the system prompt (can be used multiple times)
+  --profile <path>               Load a kit profile directory (manifest.yaml + system-prompt.md + optional mcp-servers.yaml, hooks.yaml, slash/, memory/, config.yaml, claude-md-overlay.md). Profile's system prompt is appended to the base prompt.
   --mode <mode>                  Output mode: text (default), json, or rpc
   --print, -p                    Non-interactive mode: process prompt and exit
   --continue, -c                 Continue previous session
