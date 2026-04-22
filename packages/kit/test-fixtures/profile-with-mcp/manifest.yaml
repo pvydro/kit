@@ -1,0 +1,4 @@
+name: example-mcp
+description: Test-fixture profile that spawns a local echo MCP server for end-to-end smoke
+version: 1
+profileVersion: 0.0.1

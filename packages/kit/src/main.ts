@@ -44,13 +44,7 @@ import { InteractiveMode, runPrintMode, runRpcMode } from "./modes/index.js";
 import { ExtensionSelectorComponent } from "./modes/interactive/components/extension-selector.js";
 import { initTheme, stopThemeWatcher } from "./modes/interactive/theme/theme.js";
 import { handleConfigCommand, handlePackageCommand } from "./package-manager-cli.js";
-import {
-	type ConnectedMcpServer,
-	connectAllMcpServers,
-	installMcpCleanupHandlers,
-	loadProfile,
-	ProfileLoadError,
-} from "./profile/index.js";
+import { createMcpExtensionFactory, loadProfile, ProfileLoadError } from "./profile/index.js";
 import { isLocalPath } from "./utils/paths.js";
 
 /**
@@ -453,7 +447,7 @@ export async function main(args: string[], options?: MainOptions) {
 	}
 	time("parseArgs");
 
-	const mcpServers: ConnectedMcpServer[] = [];
+	const factories: ExtensionFactory[] = [...(options?.extensionFactories ?? [])];
 	if (parsed.profile) {
 		try {
 			const profile = loadProfile(parsed.profile);
@@ -461,16 +455,7 @@ export async function main(args: string[], options?: MainOptions) {
 			parsed.appendSystemPrompt.push(profile.systemPrompt);
 
 			if (profile.mcpServers?.servers?.length) {
-				const connected = await connectAllMcpServers(profile.mcpServers.servers, (decl, err) => {
-					const detail = err instanceof Error ? err.message : String(err);
-					console.error(chalk.yellow(`[kit] MCP server "${decl.name}" failed to connect: ${detail}`));
-				});
-				mcpServers.push(...connected);
-				if (connected.length > 0) {
-					const summary = connected.map((s) => `${s.name} (${s.tools.length} tools)`).join(", ");
-					console.error(chalk.dim(`[kit] Connected MCP servers: ${summary}`));
-				}
-				installMcpCleanupHandlers(mcpServers);
+				factories.push(createMcpExtensionFactory(profile.mcpServers.servers));
 			}
 		} catch (err) {
 			if (err instanceof ProfileLoadError) {
@@ -572,7 +557,7 @@ export async function main(args: string[], options?: MainOptions) {
 				noContextFiles: parsed.noContextFiles,
 				systemPrompt: parsed.systemPrompt,
 				appendSystemPrompt: parsed.appendSystemPrompt,
-				extensionFactories: options?.extensionFactories,
+				extensionFactories: factories,
 			},
 		});
 		const { settingsManager, modelRegistry, resourceLoader } = services;

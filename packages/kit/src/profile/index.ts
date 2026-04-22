@@ -1,4 +1,5 @@
 export { loadProfile, ProfileLoadError } from "./loader.js";
+export { createMcpExtensionFactory } from "./mcp-extension-factory.js";
 export {
 	type ConnectedMcpServer,
 	connectAllMcpServers,
