@@ -16,6 +16,7 @@
  * (M4.5 would be the place to revisit if we find one).
  */
 
+import chalk from "chalk";
 import type { ExtensionAPI, ExtensionFactory } from "../core/extensions/types.js";
 import { parseCommandArgs } from "../core/prompt-templates.js";
 import type { ProfileConfig, SlashAction, SlashCommand } from "./spec.js";
@@ -31,6 +32,10 @@ export function createSlashCommandsExtensionFactory(
 	profileConfig: ProfileConfig | undefined,
 ): ExtensionFactory {
 	return (api: ExtensionAPI): void => {
+		if (commands.length > 0) {
+			const names = commands.map((c) => `/${c.name}`).join(", ");
+			console.error(chalk.dim(`[kit] Registered slash commands: ${names}`));
+		}
 		for (const cmd of commands) {
 			api.registerCommand(cmd.name, {
 				description: cmd.description,

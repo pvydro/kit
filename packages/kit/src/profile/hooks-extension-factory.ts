@@ -16,12 +16,17 @@
  * variable substitution.
  */
 
+import chalk from "chalk";
 import { minimatch } from "minimatch";
 import type { ExtensionAPI, ExtensionFactory, ToolCallEvent, ToolCallEventResult } from "../core/extensions/types.js";
 import type { HookRule, HooksConfig } from "./spec.js";
 
 export function createHooksExtensionFactory(hooks: HooksConfig): ExtensionFactory {
 	return (api: ExtensionAPI): void => {
+		const ruleCount = hooks.hooks?.length ?? 0;
+		if (ruleCount > 0) {
+			console.error(chalk.dim(`[kit] Installed ${ruleCount} hook rule${ruleCount === 1 ? "" : "s"}`));
+		}
 		api.on("tool_call", async (event: ToolCallEvent): Promise<ToolCallEventResult | undefined> => {
 			for (const rule of hooks.hooks ?? []) {
 				if (!ruleMatches(rule, event)) continue;

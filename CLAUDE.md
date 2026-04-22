@@ -80,6 +80,17 @@ After cloning (done):
 
 Then M1: create the `kit` engine package by cloning `coding-agent` structurally, add profile loader. See vault `05-milestones.md`.
 
+## Windows / Git Bash gotcha: slash commands in `-p "..."`
+
+Git Bash (MSYS) auto-translates argument strings that start with `/` into Windows paths before they reach a non-MSYS executable. `kit -p "/greet world"` becomes `kit -p "C:/Program Files/Git/greet world"` and kit's slash-command dispatch never fires.
+
+Workarounds in order of friction:
+- **Double the leading slash:** `kit -p "//greet world"`. MSYS skips conversion on `//` paths.
+- Run from WSL / Linux / native cmd.exe. No translation.
+- Setting `MSYS_NO_PATHCONV=1` at the wrapper-script level breaks tsx path resolution, so avoid it.
+
+Interactive slash commands (`/greet` typed inside the TUI) are unaffected — this only hits the `-p` / `--message` arg path.
+
 ## What not to do
 
 - Do not add profile-specific code, config, or content to this repo
