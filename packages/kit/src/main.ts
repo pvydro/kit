@@ -44,7 +44,12 @@ import { InteractiveMode, runPrintMode, runRpcMode } from "./modes/index.js";
 import { ExtensionSelectorComponent } from "./modes/interactive/components/extension-selector.js";
 import { initTheme, stopThemeWatcher } from "./modes/interactive/theme/theme.js";
 import { handleConfigCommand, handlePackageCommand } from "./package-manager-cli.js";
-import { createMcpExtensionFactory, loadProfile, ProfileLoadError } from "./profile/index.js";
+import {
+	createHooksExtensionFactory,
+	createMcpExtensionFactory,
+	loadProfile,
+	ProfileLoadError,
+} from "./profile/index.js";
 import { isLocalPath } from "./utils/paths.js";
 
 /**
@@ -456,6 +461,10 @@ export async function main(args: string[], options?: MainOptions) {
 
 			if (profile.mcpServers?.servers?.length) {
 				factories.push(createMcpExtensionFactory(profile.mcpServers.servers));
+			}
+
+			if (profile.hooks?.hooks?.length) {
+				factories.push(createHooksExtensionFactory(profile.hooks));
 			}
 		} catch (err) {
 			if (err instanceof ProfileLoadError) {

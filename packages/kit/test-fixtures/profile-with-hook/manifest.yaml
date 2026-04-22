@@ -1,0 +1,4 @@
+name: example-hook
+description: Fixture that blocks bash git-write commands via a pre-tool-use hook
+version: 1
+profileVersion: 0.0.1

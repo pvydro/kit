@@ -1,3 +1,4 @@
+export { createHooksExtensionFactory } from "./hooks-extension-factory.js";
 export { loadProfile, ProfileLoadError } from "./loader.js";
 export { createMcpExtensionFactory } from "./mcp-extension-factory.js";
 export {

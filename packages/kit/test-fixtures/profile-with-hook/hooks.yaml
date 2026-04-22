@@ -1,0 +1,9 @@
+hooks:
+  - id: block-git-writes
+    on:
+      tool: bash
+      commandRegex: "^\\s*git\\s+(commit|push|add|reset\\s+--hard|checkout\\s+--)"
+    block: true
+    reason: |
+      git write commands are blocked by the example-hook profile.
+      This proves pre-tool-use hooks fire and can veto tool calls.
