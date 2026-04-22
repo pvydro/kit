@@ -47,6 +47,7 @@ import { handleConfigCommand, handlePackageCommand } from "./package-manager-cli
 import {
 	createHooksExtensionFactory,
 	createMcpExtensionFactory,
+	createSlashCommandsExtensionFactory,
 	loadProfile,
 	ProfileLoadError,
 } from "./profile/index.js";
@@ -465,6 +466,10 @@ export async function main(args: string[], options?: MainOptions) {
 
 			if (profile.hooks?.hooks?.length) {
 				factories.push(createHooksExtensionFactory(profile.hooks));
+			}
+
+			if (profile.slashCommands?.length) {
+				factories.push(createSlashCommandsExtensionFactory(profile.slashCommands, profile.config));
 			}
 		} catch (err) {
 			if (err instanceof ProfileLoadError) {

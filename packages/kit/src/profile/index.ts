@@ -8,4 +8,6 @@ export {
 	installMcpCleanupHandlers,
 	type McpToolInfo,
 } from "./mcp-spawn.js";
+export { createSlashCommandsExtensionFactory } from "./slash-commands-extension-factory.js";
 export * from "./spec.js";
+export { type SubstitutionContext, substitute, substituteObject } from "./substitution.js";

@@ -1,0 +1,4 @@
+name: example-slash
+description: Fixture demonstrating slash commands (prompt + tool_call kinds) with variable substitution
+version: 1
+profileVersion: 0.0.1

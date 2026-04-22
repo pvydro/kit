@@ -1,0 +1,9 @@
+name: echo-say
+description: Ask the model to call bash with echo
+args:
+  - { name: message, required: true }
+action:
+  kind: tool_call
+  tool: bash
+  input:
+    command: "echo '${args.message}'"

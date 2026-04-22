@@ -1,0 +1,8 @@
+name: greet
+description: Say hello to a named target, with profile config injected
+args:
+  - { name: target, required: true }
+action:
+  kind: prompt
+  template: |
+    ${profile.config.greeting}, ${args.target}! Extra: ${args.rest}
