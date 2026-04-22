@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Thin dev-time launcher for kit. Resolves its own path so it can be symlinked
+# from anywhere on PATH. Runs src/cli.ts directly via tsx — no build needed.
+#
+# Defaults profile from $KIT_PROFILE if --profile isn't passed (handled in
+# packages/kit/src/main.ts). Set KIT_PROFILE in your shell rc to pick a profile
+# automatically for every invocation.
+set -euo pipefail
+
+# Resolve symlinks so "ln -s /path/to/kit/bin/kit ~/bin/kit" works.
+SOURCE="${BASH_SOURCE[0]}"
+while [[ -L "$SOURCE" ]]; do
+  TARGET="$(readlink "$SOURCE")"
+  if [[ "$TARGET" = /* ]]; then SOURCE="$TARGET"; else SOURCE="$(dirname "$SOURCE")/$TARGET"; fi
+done
+REPO_ROOT="$(cd "$(dirname "$SOURCE")/.." && pwd)"
+
+TSX_BIN="$REPO_ROOT/node_modules/.bin/tsx"
+if [[ ! -x "$TSX_BIN" ]]; then
+  echo "kit: tsx not found at $TSX_BIN. Run 'npm install' in $REPO_ROOT first." >&2
+  exit 1
+fi
+
+exec "$TSX_BIN" "$REPO_ROOT/packages/kit/src/cli.ts" "$@"

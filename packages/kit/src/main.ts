@@ -457,9 +457,10 @@ export async function main(args: string[], options?: MainOptions) {
 	time("parseArgs");
 
 	const factories: ExtensionFactory[] = [...(options?.extensionFactories ?? [])];
-	if (parsed.profile) {
+	const profilePath = parsed.profile ?? process.env.KIT_PROFILE;
+	if (profilePath) {
 		try {
-			const profile = loadProfile(parsed.profile);
+			const profile = loadProfile(profilePath);
 			parsed.appendSystemPrompt = parsed.appendSystemPrompt ?? [];
 			parsed.appendSystemPrompt.push(profile.systemPrompt);
 
