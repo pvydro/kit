@@ -40,12 +40,22 @@ export interface HookWhenRule {
 	cwdPrefixIn?: string[];
 }
 
+export interface HookCallAction {
+	command: string;
+	args?: string[];
+	env?: Record<string, string>;
+	/** Working directory for the subprocess. ${...} substitutable. */
+	cwd?: string;
+	/** Default 30000 ms. On timeout the subprocess is SIGKILL'd and treated as exit 1. */
+	timeoutMs?: number;
+}
+
 export interface HookRule {
 	id: string;
 	on: HookOnRule;
 	when?: HookWhenRule;
-	call?: string;
-	input?: Record<string, unknown>;
+	/** Subprocess to run BEFORE allowing the matched tool call. Non-zero exit + blockOnError=true blocks the original call. */
+	call?: HookCallAction;
 	blockOnError?: boolean;
 	block?: boolean;
 	reason?: string;

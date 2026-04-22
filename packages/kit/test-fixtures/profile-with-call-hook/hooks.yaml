@@ -1,0 +1,14 @@
+hooks:
+  - id: validate-xml-writes
+    on:
+      tool: write
+      pathMatch: "**/*.xml"
+    call:
+      command: node
+      args:
+        - -e
+        - "const p = process.argv[1] ?? ''; if (p.includes('blocked')) { console.error('path contains reserved word \"blocked\"'); process.exit(1); }"
+        - "${tool_input.path}"
+    blockOnError: true
+    reason: |
+      XML validator rejected the write (subprocess hook).

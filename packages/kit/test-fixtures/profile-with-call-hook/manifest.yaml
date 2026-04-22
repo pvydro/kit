@@ -1,0 +1,4 @@
+name: example-call-hook
+description: Hook that runs a validator subprocess on .xml writes and blocks the write if the validator fails
+version: 1
+profileVersion: 0.0.1
