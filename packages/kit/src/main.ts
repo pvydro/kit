@@ -45,11 +45,14 @@ import { ExtensionSelectorComponent } from "./modes/interactive/components/exten
 import { initTheme, stopThemeWatcher } from "./modes/interactive/theme/theme.js";
 import { handleConfigCommand, handlePackageCommand } from "./package-manager-cli.js";
 import {
+	bootstrapFromProfile,
 	createHooksExtensionFactory,
 	createMcpExtensionFactory,
+	createMemoryExtensionFactory,
 	createSlashCommandsExtensionFactory,
 	loadProfile,
 	ProfileLoadError,
+	readMemoryIndex,
 } from "./profile/index.js";
 import { isLocalPath } from "./utils/paths.js";
 
@@ -460,6 +463,13 @@ export async function main(args: string[], options?: MainOptions) {
 			parsed.appendSystemPrompt = parsed.appendSystemPrompt ?? [];
 			parsed.appendSystemPrompt.push(profile.systemPrompt);
 
+			if (profile.memoryFiles && profile.memoryFiles.length > 0) {
+				const seeded = bootstrapFromProfile(profile.memoryFiles);
+				if (seeded) {
+					console.error(chalk.dim(`[kit] Seeded ${profile.memoryFiles.length} memory file(s) from profile`));
+				}
+			}
+
 			if (profile.mcpServers?.servers?.length) {
 				factories.push(createMcpExtensionFactory(profile.mcpServers.servers));
 			}
@@ -478,6 +488,14 @@ export async function main(args: string[], options?: MainOptions) {
 			}
 			throw err;
 		}
+	}
+
+	factories.push(createMemoryExtensionFactory());
+
+	const memoryIndex = readMemoryIndex(200);
+	if (memoryIndex.trim().length > 0) {
+		parsed.appendSystemPrompt = parsed.appendSystemPrompt ?? [];
+		parsed.appendSystemPrompt.push(`# Persistent memory index\n\n${memoryIndex}`);
 	}
 
 	let appMode = resolveAppMode(parsed, process.stdin.isTTY);

@@ -1,0 +1,4 @@
+name: example-memory
+description: Fixture with seed memory files to exercise bootstrap and the remember/recall/memory_list tools
+version: 1
+profileVersion: 0.0.1
