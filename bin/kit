@@ -21,4 +21,14 @@ if [[ ! -x "$TSX_BIN" ]]; then
   exit 1
 fi
 
-exec "$TSX_BIN" "$REPO_ROOT/packages/kit/src/cli.ts" "$@"
+# Tee stderr to a log file so you can tail kit's diagnostics from a second terminal:
+#   tail -f ~/.kit/logs/kit.log
+# Override with KIT_LOG=/some/path.log. Disable with KIT_LOG=/dev/null.
+LOG_FILE="${KIT_LOG:-$HOME/.kit/logs/kit.log}"
+if [[ "$LOG_FILE" = "/dev/null" ]]; then
+  exec "$TSX_BIN" "$REPO_ROOT/packages/kit/src/cli.ts" "$@"
+fi
+
+mkdir -p "$(dirname "$LOG_FILE")"
+printf -- '\n--- kit %s | cwd=%s | args=%s ---\n' "$(date -Iseconds 2>/dev/null || date)" "$PWD" "$*" >> "$LOG_FILE"
+exec "$TSX_BIN" "$REPO_ROOT/packages/kit/src/cli.ts" "$@" 2> >(tee -a "$LOG_FILE" >&2)
