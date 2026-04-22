@@ -45,3 +45,11 @@ collect.sh
 .claude/
 *.local.yaml
 *.local.md
+
+# Profile directories must NEVER be tracked by kit — they contain per-domain IP.
+# Profiles live at siblings like ~/Desktop/Code/kit-profiles/<name>/ but this guards
+# against accidental nesting inside the kit repo.
+/kit-profiles/
+/kit-profile-*/
+**/kit-profiles/
+**/kit-profile-*/
